@@ -2,8 +2,7 @@ info:
   repo: "main"
   version: "1.0.0"
   name: "TRGithub"
-  description: "Download manager in Minecraft Trigger Reactor plugin"
-  directions: "./github"
+  description: "Download manager for Minecraft Trigger Reactor plugin"
 triggers:
   CommandTrigger:
   - github.trg
