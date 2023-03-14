@@ -1,0 +1,11 @@
+{
+  "info": {
+     name: "TRGithub",
+     description: "Download manager for Minecraft Trigger Reactor plugin",
+  },
+  "triggers": {
+    CommandTrigger: [
+      github.trg
+    ]
+  }
+}
