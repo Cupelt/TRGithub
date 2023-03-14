@@ -1,6 +1,4 @@
 info:
-  repo: "main"
-  version: "1.0.0"
   name: "TRGithub"
   description: "Download manager for Minecraft Trigger Reactor plugin"
 triggers:
