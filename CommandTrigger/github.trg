@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.BufferedReader;
 import java.lang.Byte;
 import java.lang.StringBuilder;
+import java.lang.Class
 import java.lang.System;
 import java.lang.reflect.Array;
 import java.text.NumberFormat;
@@ -30,14 +31,6 @@ import io.github.wysohn.gsoncopy.JsonParser;
 import io.github.wysohn.gsoncopy.JsonObject;
 import io.github.wysohn.gsoncopy.GsonBuilder;
 import io.github.wysohn.triggerreactor.core.manager.Manager
-
-IF {"github.setting.auto"} == null
-    {"github.setting.auto"} = true;
-ENDIF
-
-IF {?"github.setting.run"} == null
-    {?"github.setting.run"} = false;
-ENDIF
 
 clearChat = "\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a\n&a"
 breakLine = "\n";
@@ -101,11 +94,18 @@ ENDTRY
 packageReader.close();
 
 IF args.length == 0
-    #MESSAGE "&b---------- &fTRGithub &b----------";
-    #MESSAGE "&7./github active &f| &ashow downloaded pakages";
-    #MESSAGE "&7./github packages &f| &ashow downloaded pakages";
-    #MESSAGE "&7./github update &f| &aupdate pakage";
-    #MESSAGE "&7./github download &8<github repository url> &8<version> &f| &aDownload Trigger Reactor file in github repository.";
+    builder = StringBuilder();
+    builder = builder.append("&b---------- &fTRGithub &b----------")
+    builder = builder.append("\n&7./github active &8<packageName> &f| &achange active package");
+    builder = builder.append("\n&7./github active &8<packageName> <overwrite | skip> &f| &aSet whether to overwrite.");
+    builder = builder.append("\n&7./github packages &f| &ashow downloaded pakages");
+    builder = builder.append("\n&7./github insatall &8<github repository url> &f| \n&aInstall the \"latest package\" from the github repository.");
+    builder = builder.append("\n&7./github insatall &8<github repository url> <version> &f| \n&aInstall the \"selected version\" from the github repository.");
+    builder = builder.append("\n&7./github insatall &8<packageName> &f| \n&aUpdate the \"latest package\" in github repository.");
+    builder = builder.append("\n&7./github insatall &8<packageName> <version>&f| \n&aUpdate the \"selected version\" from the github repository.");
+    builder = builder.append("\n&7./github export &f| &aSee &2\"./github export\"&a for more information");
+    builder = builder.append("\n&7./github delete &8<packageName> &f| &aDelete the package");
+    #MESSAGE builder
 ENDIF
 
 IF args.length == 1
@@ -144,6 +144,10 @@ IF args.length == 1
         ENDFOR
         builder.insert(0,"&b---------- &fTRGithub &b----------");
         #MESSAGE builder.toString();
+    ELSEIF args[0] == "export"
+        #MESSAGE "&cThe current version is a compressed version!"
+        #MESSAGE "&cPlease update to a version that supports the export function!"
+        #MESSAGE "&c/github install TRGithub"
     ELSEIF args[0] == "yes" && {?"users." + $playeruuid + ".choice"} == "none"
         {?"users." + $playeruuid + ".choice"} = "YES";
     ELSEIF args[0] == "no" && {?"users." + $playeruuid + ".choice"} == "none"
@@ -156,6 +160,65 @@ IF args.length == 1
 ENDIF
 
 IF args.length == 2 || args.length == 3
+    IF args.length == 2 && args[0] == "delete"
+        IF packageManager.getAsJsonObject(args[1].toLowerCase()) != null
+            IF args[1].toLowerCase() == "trgithub"
+                #MESSAGE "&cTRGithub cannot be deleted!";
+                #STOP;
+            ENDIF
+            beforePath = packageManager.getAsJsonObject(args[1].toLowerCase()).get("path").getAsString();
+            beforeFile = File("."+ beforePath);
+            IF beforeFile.exists()
+                #MESSAGE "&7Deleting files...";
+                TRY
+                    IF packageManager.getAsJsonObject(args[1].toLowerCase()).get("active").getAsBoolean()
+                        zip = ZipFile(beforeFile);
+                        parentDir = zip.entries().nextElement().getName();
+
+                        infoEntry = zip.getEntry(parentDir+"package-info.json");
+                        infoJson = parser.parse(InputStreamReader(zip.getInputStream(infoEntry)));
+
+                        #MESSAGE "&cDisabling '" + packageManager.getAsJsonObject(args[1].toLowerCase()).get("name").getAsString() + "'...";
+                        #WAIT 1;
+                        FOR trigger = triggerList
+                            trgJson = infoJson.getAsJsonObject("triggers").getAsJsonArray(trigger);
+                            IF trgJson != null
+                                FOR f = trgJson
+                                    deletePath = "./plugins/TriggerReactor/"+trigger+"/"+f.getAsString();
+                                    deleteFile = File(deletePath);
+                                    deleteFile.delete()
+                                    #MESSAGE "&cDeleted &4'"+ deletePath +"'";
+                                ENDFOR
+                            ENDIF
+                        ENDFOR
+                        packageManager.getAsJsonObject(args[1].toLowerCase()).addProperty("active", false);
+                        #MESSAGE "&cDisable Complete";
+                    ENDIF
+
+                    IF beforeFile.delete()
+                        #MESSAGE "&cDeleted &4'"+ beforePath +"'"
+                        packageManager.remove(args[1].toLowerCase())
+                    ELSE
+                        #MESSAGE "&4Failed to delete '.trgpack' file, Please restart the server and try again"
+                        #MESSAGE "&cThere is no problem with the process,"
+                        #MESSAGE "&cbut if it continues, please contact TRGithub issue."
+                        #STOP
+                    ENDIF
+                CATCH e
+                    IF e.getClass() IS Class.forName("java.util.zip.ZipException")
+                        #MESSAGE "&c.trgpack File is empty!";
+                        #MESSAGE "&cIs there any damage to the file?";
+                    ENDIF
+                    e.printStackTrace()
+                ENDTRY
+            ENDIF
+
+            #MESSAGE "&cDelete Complete &4'"+packageManager.getAsJsonObject(args[1].toLowerCase()).get("name").getAsString()+"'"
+            packageManager.remove(args[1].toLowerCase())
+        ELSE
+            #MESSAGE "&c'"+args[1]+"' not found";
+        ENDIF
+    ENDIF
     IF args[0] == "active"
         IF args.length == 3
             IF args[2].toLowerCase().contains("overwrite")
@@ -283,20 +346,25 @@ IF args.length == 2 || args.length == 3
 ENDIF
 
 IF args.length > 0 && args.length < 4
-    IF args[0] == "download"
+    IF args[0] == "install"
         IF args.length == 1
              #MESSAGE "&cPlease enter url";
             #STOP
         ENDIF
 
         path = args[1];
-        IF !path.contains("https://")
-            path = "https://" + path;
+        IF packageManager.getAsJsonObject(args[1].toLowerCase()) != null
+            IF args.length == 2
+                #CMD "github install " + packageManager.getAsJsonObject(args[1].toLowerCase()).get("url").getAsString()
+                #STOP
+            ELSEIF args.length == 3
+                #CMD "github install " + packageManager.getAsJsonObject(args[1].toLowerCase()).get("url").getAsString() + " " +  args[2]
+                #STOP
+            ENDIF
         ENDIF
 
-        IF {?"github.setting.run"}
-            #MESSAGE "&cThere is already a run in progress!";
-            #STOP
+        IF !path.contains("https://")
+            path = "https://" + path;
         ENDIF
         
         #MESSAGE "&7Checking repository..."; // check repo is trgpackage
@@ -399,31 +467,43 @@ IF args.length > 0 && args.length < 4
                 beforePath = packageManager.getAsJsonObject(name.toLowerCase()).get("path").getAsString();
                 beforeFile = File("./"+ beforePath);
                 IF beforeFile.exists()
-                    zip = ZipFile(File("."+ packageManager.getAsJsonObject(name.toLowerCase()).get("path").getAsString()));
-                    parentDir = zip.entries().nextElement().getName();
-
-                    infoEntry = zip.getEntry(parentDir+"package-info.json");
-                    infoJson = parser.parse(InputStreamReader(zip.getInputStream(infoEntry)));
-
                     #MESSAGE "&7Deleting old files...";
+                    TRY
+                        IF packageManager.getAsJsonObject(args[1].toLowerCase()).get("active").getAsBoolean()
+                            zip = ZipFile(File("."+ packageManager.getAsJsonObject(name.toLowerCase()).get("path").getAsString()));
+                            parentDir = zip.entries().nextElement().getName();
 
-                    #MESSAGE "&cDisabling '" + packageManager.getAsJsonObject(name.toLowerCase()).get("name").getAsString() + "'...";
-                    #WAIT 2;
-                    FOR trigger = triggerList
-                        trgJson = infoJson.getAsJsonObject("triggers").getAsJsonArray(trigger);
-                        IF trgJson != null
-                            FOR f = trgJson
-                                deletePath = "./plugins/TriggerReactor/"+trigger+"/"+f.getAsString();
-                                deleteFile = File(deletePath);
-                                deleteFile.delete()
-                                #MESSAGE "&cDeleted &4'"+ deletePath +"'";
+                            infoEntry = zip.getEntry(parentDir+"package-info.json");
+                            infoJson = parser.parse(InputStreamReader(zip.getInputStream(infoEntry)));
+
+                            #MESSAGE "&cDisabling '" + packageManager.getAsJsonObject(name.toLowerCase()).get("name").getAsString() + "'...";
+                            #WAIT 2;
+                            FOR trigger = triggerList
+                                trgJson = infoJson.getAsJsonObject("triggers").getAsJsonArray(trigger);
+                                IF trgJson != null
+                                    FOR f = trgJson
+                                        deletePath = "./plugins/TriggerReactor/"+trigger+"/"+f.getAsString();
+                                        deleteFile = File(deletePath);
+                                        deleteFile.delete()
+                                        #MESSAGE "&cDeleted &4'"+ deletePath +"'";
+                                    ENDFOR
+                                ENDIF
                             ENDFOR
+
+                            zip.close()
                         ENDIF
-                    ENDFOR
-                    IF beforeFile.delete();
+
+                    CATCH e
+                        IF e.getClass() IS Class.forName("java.util.zip.ZipException")
+                            #MESSAGE "&c.trgpack File is empty!"
+                            #MESSAGE "&cIs there any damage to the file?";
+                        ENDIF
+                    ENDTRY
+
+                    IF beforeFile.delete()
                         #MESSAGE "&cDeleted &4'"+ beforePath +"'"
                     ELSE
-                        #MESSAGE "&4Deleting "+beforePath+" failed"
+                        #MESSAGE "&4Failed to delete old '.trgpack' file"
                         #MESSAGE "&cThere is no problem with the process,"
                         #MESSAGE "&cbut if it continues, please contact TRGithub issue."
                     ENDIF
@@ -433,6 +513,7 @@ IF args.length > 0 && args.length < 4
 
             downloadPath = "/plugins/TriggerReactor/packages/" + name + " " + version + ".trgpack";
             downloadStream = BufferedInputStream(downloadUrl.openStream());
+
             downloadFile = File("./"+ downloadPath);
 
             IF !downloadFile.getParentFile().exists()
@@ -478,9 +559,11 @@ IF args.length > 0 && args.length < 4
 
             packageManager.add(name.toLowerCase(), packageInfo);
         CATCH e
-            IF e.getMessage().contains("Server returned HTTP response code: 403")
+            IF e.getMessage() != null && e.getMessage().contains("Server returned HTTP response code: 403")
                 #MESSAGE "&cServer returned HTTP response code: 403";
-                #MESSAGE "&cDon't worry, you've just exceeded the limit of requests you can send to Github. \nIt should return to normal after some time. \nHow about waiting while enjoying a cup of coffee? :）";
+                #MESSAGE "&cLooks like Github has put you in a time-out!"
+                #MESSAGE "&cIt's okay, we all have those days when we get a little too excited and exceed our limits."
+                #MESSAGE "&cTake a break, grab a cup of coffee, and try again later when Github is feeling a bit more forgiving.";
             ELSE
                 #MESSAGE "&cAn error has occurred!\nPlease check the console for details";
                 e.printStackTrace()
