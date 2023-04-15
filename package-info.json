@@ -5,7 +5,8 @@
   },
   "triggers": {
     "CommandTrigger": [
-      "github.trg"
+      "github.trg",
+      "github.json"
     ]
   }
 }
