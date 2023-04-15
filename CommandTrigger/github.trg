@@ -101,7 +101,7 @@ ENDTRY
 packageReader.close();
 
 IF args.length == 0
-    #MESSAGE "&b---------- &fTRGithub &b----------";
+    #MESSAGE "&b---------- &fTRGithub&b ----------";
     #MESSAGE "&7./github active &f| &ashow downloaded pakages";
     #MESSAGE "&7./github packages &f| &ashow downloaded pakages";
     #MESSAGE "&7./github update &f| &aupdate pakage";
