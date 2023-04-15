@@ -161,24 +161,25 @@ ENDIF
 
 IF args.length == 2 || args.length == 3
     IF args.length == 2 && args[0] == "delete"
-        IF packageManager.getAsJsonObject(args[1].toLowerCase()) != null
+        packageJson = packageManager.getAsJsonObject(args[1].toLowerCase())
+        IF packageJson != null
             IF args[1].toLowerCase() == "trgithub"
                 #MESSAGE "&cTRGithub cannot be deleted!";
                 #STOP;
             ENDIF
-            beforePath = packageManager.getAsJsonObject(args[1].toLowerCase()).get("path").getAsString();
+            beforePath = packageJson.get("path").getAsString();
             beforeFile = File("."+ beforePath);
             IF beforeFile.exists()
                 #MESSAGE "&7Deleting files...";
                 TRY
-                    IF packageManager.getAsJsonObject(args[1].toLowerCase()).get("active").getAsBoolean()
+                    IF packageJson.get("active").getAsBoolean()
                         zip = ZipFile(beforeFile);
                         parentDir = zip.entries().nextElement().getName();
 
                         infoEntry = zip.getEntry(parentDir+"package-info.json");
                         infoJson = parser.parse(InputStreamReader(zip.getInputStream(infoEntry)));
 
-                        #MESSAGE "&cDisabling '" + packageManager.getAsJsonObject(args[1].toLowerCase()).get("name").getAsString() + "'...";
+                        #MESSAGE "&cDisabling '" + packageJson.get("name").getAsString() + "'...";
                         #WAIT 1;
                         FOR trigger = triggerList
                             trgJson = infoJson.getAsJsonObject("triggers").getAsJsonArray(trigger);
@@ -191,7 +192,7 @@ IF args.length == 2 || args.length == 3
                                 ENDFOR
                             ENDIF
                         ENDFOR
-                        packageManager.getAsJsonObject(args[1].toLowerCase()).addProperty("active", false);
+                        packageJson.addProperty("active", false);
                         #MESSAGE "&cDisable Complete";
                     ENDIF
 
@@ -213,7 +214,7 @@ IF args.length == 2 || args.length == 3
                 ENDTRY
             ENDIF
 
-            #MESSAGE "&cDelete Complete &4'"+packageManager.getAsJsonObject(args[1].toLowerCase()).get("name").getAsString()+"'"
+            #MESSAGE "&cDelete Complete &4'"+packageJson.get("name").getAsString()+"'"
             packageManager.remove(args[1].toLowerCase())
         ELSE
             #MESSAGE "&c'"+args[1]+"' not found";
@@ -230,17 +231,19 @@ IF args.length == 2 || args.length == 3
                 #STOP;
             ENDIF
         ENDIF
+        
+        packageJson = packageManager.getAsJsonObject(args[1].toLowerCase())
 
-        IF packageManager.getAsJsonObject(args[1].toLowerCase()) != null
-            zip = ZipFile(File("."+ packageManager.getAsJsonObject(args[1].toLowerCase()).get("path").getAsString()));
+        IF packageJson != null
+            zip = ZipFile(File("."+ packageJson.get("path").getAsString()));
             parentDir = zip.entries().nextElement().getName();
 
             infoEntry = zip.getEntry(parentDir+"package-info.json");
             infoJson = parser.parse(InputStreamReader(zip.getInputStream(infoEntry)));
 
             TRY
-                IF !packageManager.getAsJsonObject(args[1].toLowerCase()).get("active").getAsBoolean()
-                    #MESSAGE "&aEnabling '" + packageManager.getAsJsonObject(args[1].toLowerCase()).get("name").getAsString() + "'..."; // Uncompressing
+                IF !packageJson.get("active").getAsBoolean()
+                    #MESSAGE "&aEnabling '" + packageJson.get("name").getAsString() + "'..."; // Uncompressing
                     #WAIT 2;
                     FOR trigger = triggerList
                         trgJson = infoJson.getAsJsonObject("triggers").getAsJsonArray(trigger);
@@ -302,14 +305,14 @@ IF args.length == 2 || args.length == 3
                         ENDIF
                     ENDFOR
 
-                    packageManager.getAsJsonObject(args[1].toLowerCase()).addProperty("active", true);
+                    packageJson.addProperty("active", true);
                     #MESSAGE "&aEnable Complete";
                 ELSE
                     IF args[1].toLowerCase() == "trgithub"
                         #MESSAGE "&cTRGithub cannot be disabled!";
                         #STOP;
                     ENDIF
-                    #MESSAGE "&cDisabling '" + packageManager.getAsJsonObject(args[1].toLowerCase()).get("name").getAsString() + "'...";
+                    #MESSAGE "&cDisabling '" + packageJson.get("name").getAsString() + "'...";
                     #WAIT 2;
                     FOR trigger = triggerList
                         trgJson = infoJson.getAsJsonObject("triggers").getAsJsonArray(trigger);
@@ -322,7 +325,7 @@ IF args.length == 2 || args.length == 3
                             ENDFOR
                         ENDIF
                     ENDFOR
-                    packageManager.getAsJsonObject(args[1].toLowerCase()).addProperty("active", false);
+                    packageJson.addProperty("active", false);
                     #MESSAGE "&cDisable Complete";
                 ENDIF
 
@@ -353,12 +356,15 @@ IF args.length > 0 && args.length < 4
         ENDIF
 
         path = args[1];
-        IF packageManager.getAsJsonObject(args[1].toLowerCase()) != null
+
+        packageJson = packageManager.getAsJsonObject(args[1].toLowerCase())
+
+        IF packageJson != null
             IF args.length == 2
-                #CMD "github install " + packageManager.getAsJsonObject(args[1].toLowerCase()).get("url").getAsString()
+                #CMD "github install " + packageJson.get("url").getAsString()
                 #STOP
             ELSEIF args.length == 3
-                #CMD "github install " + packageManager.getAsJsonObject(args[1].toLowerCase()).get("url").getAsString() + " " +  args[2]
+                #CMD "github install " + packageJson.get("url").getAsString() + " " +  args[2]
                 #STOP
             ENDIF
         ENDIF
