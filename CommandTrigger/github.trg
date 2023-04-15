@@ -101,7 +101,7 @@ ENDTRY
 packageReader.close();
 
 IF args.length == 0
-    #MESSAGE "&b---------- &fTRGithub&b ----------";
+    #MESSAGE "&b---------- &fTRGithub &b----------";
     #MESSAGE "&7./github active &f| &ashow downloaded pakages";
     #MESSAGE "&7./github packages &f| &ashow downloaded pakages";
     #MESSAGE "&7./github update &f| &aupdate pakage";
@@ -166,11 +166,6 @@ IF args.length == 2 || args.length == 3
                 #MESSAGE "&cPlease only use overwrite or skip";
                 #STOP;
             ENDIF
-        ENDIF
-
-        IF args[1].toLowerCase() == "trgithub"
-            #MESSAGE "&cTRGithub cannot be disabled!";
-            #STOP;
         ENDIF
 
         IF packageManager.getAsJsonObject(args[1].toLowerCase()) != null
@@ -245,9 +240,12 @@ IF args.length == 2 || args.length == 3
                     ENDFOR
 
                     packageManager.getAsJsonObject(args[1].toLowerCase()).addProperty("active", true);
-                    zip.close();
                     #MESSAGE "&aEnable Complete";
                 ELSE
+                    IF args[1].toLowerCase() == "trgithub"
+                        #MESSAGE "&cTRGithub cannot be disabled!";
+                        #STOP;
+                    ENDIF
                     #MESSAGE "&cDisabling '" + packageManager.getAsJsonObject(args[1].toLowerCase()).get("name").getAsString() + "'...";
                     #WAIT 2;
                     FOR trigger = triggerList
@@ -276,6 +274,8 @@ IF args.length == 2 || args.length == 3
                 #MESSAGE "&cAn error has occurred!\nPlease check the console for details";
                 #LOG e
             ENDTRY
+
+            zip.close();
         ELSE
             #MESSAGE "&c'"+args[1]+"' not found";
         ENDIF
@@ -420,8 +420,13 @@ IF args.length > 0 && args.length < 4
                             ENDFOR
                         ENDIF
                     ENDFOR
-                    beforeFile.delete();
-                    #MESSAGE "&cDeleted &4'"+ beforePath +"'"
+                    IF beforeFile.delete();
+                        #MESSAGE "&cDeleted &4'"+ beforePath +"'"
+                    ELSE
+                        #MESSAGE "&4Deleting "+beforePath+" failed"
+                        #MESSAGE "&cThere is no problem with the process,"
+                        #MESSAGE "&cbut if it continues, please contact TRGithub issue."
+                    ENDIF
                     #WAIT 2;
                 ENDIF
             ENDIF
@@ -455,10 +460,6 @@ IF args.length > 0 && args.length < 4
             downloadInput.close();
 
             active = false
-
-            IF name == "TRGithub"
-                active = true;
-            ENDIF
 
             IF packageManager.getAsJsonObject(name.toLowerCase()) != null
                 IF packageManager.getAsJsonObject(name.toLowerCase()).get("active").getAsBoolean()
