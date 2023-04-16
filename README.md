@@ -15,6 +15,12 @@
 ※ `/github active <packageName>` 를 사용해도, 중복된 파일이 있다면, 선택지가 표시됩니다.
 </br>
 
-> `/github package`</br></br>
-명령어의 종류와 기능에 대해 설명 합니다.
+> `/github package <packageName | *>`</br>
+→ 패키지의 상세 정보를 확인합니다.</br></br>
+※ `*` 를 입력하면 모든 패키지의 상태가 나옵니다.
+</br>
+
+> `/github package <packageName | *>`</br>
+→ 패키지의 상세 정보를 확인합니다.</br></br>
+※ `*` 를 입력하면 모든 패키지의 상태가 나옵니다.
 </br>
