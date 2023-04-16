@@ -109,42 +109,7 @@ IF args.length == 0
 ENDIF
 
 IF args.length == 1
-    IF args[0] == "packages"
-
-        builder = StringBuilder();
-        FOR pack = packageManager.keySet()
-            packjson = packageManager.getAsJsonObject(pack)
-            
-            TRY
-                verStream = InputStreamReader(URL("https://api.github.com/repos/" + packjson.get("url").getAsString().replaceAll("https://github.com/", "") + "/releases/latest").openStream());
-                latestVer = parser.parse(verStream).getAsJsonObject().get("tag_name").getAsString();
-            CATCH e
-                latestVer = "Unknwon or Deleted Repository";
-            ENDTRY
-
-            IF verStream IS InputStreamReader
-                verStream.close();
-            ENDIF
-
-            IF packjson.get("active").getAsBoolean();
-                active = "&aEnable";
-            ELSE
-                active = "&cDisable"
-            ENDIF
-
-            IF pack == "trgithub"
-                builder = builder.insert(0, "\n" + in + "&7latest version &8: &6" + latestVer);
-                builder = builder.insert(0, "\n" + in + "&7version &8: &e" + packjson.get("version").getAsString());
-                builder = builder.insert(0, "\n&f- &b" + packjson.get("name").getAsString() + " &f| " + active);
-            ELSE
-                builder = builder.append("\n&f- &b" + packjson.get("name").getAsString() + " &f| " + active);
-                builder = builder.append("\n" + in + "&7version &8: &e" + packjson.get("version").getAsString());
-                builder = builder.append("\n" + in + "&7latest version &8: &6" + latestVer);
-            ENDIF
-        ENDFOR
-        builder.insert(0,"&b---------- &fTRGithub &b----------");
-        #MESSAGE builder.toString();
-    ELSEIF args[0] == "export"
+    IF args[0] == "export"
         #MESSAGE "&cThe current version is a compressed version!"
         #MESSAGE "&cPlease update to a version that supports the export function!"
         #MESSAGE "&c/github install TRGithub"
@@ -156,6 +121,111 @@ IF args.length == 1
         {?"users." + $playeruuid + ".choice"} = "overwrite";
     ELSEIF args[0] == "skip" && {?"users." + $playeruuid + ".choice"} == "none"
         {?"users." + $playeruuid + ".choice"} = "skip";
+    ENDIF
+ENDIF
+
+IF args.length == 2
+    IF args[0] == "package"
+
+        builder = StringBuilder();
+        IF args[1] == "*"
+            FOR pack = packageManager.keySet()
+                packjson = packageManager.getAsJsonObject(pack)
+                
+                TRY
+                    verStream = InputStreamReader(URL("https://api.github.com/repos/" + packjson.get("url").getAsString().replaceAll("https://github.com/", "") + "/releases/latest").openStream());
+                    latestVer = parser.parse(verStream).getAsJsonObject().get("tag_name").getAsString();
+                CATCH e
+                    IF e.getMessage() != null && e.getMessage().contains("Server returned HTTP response code: 403")
+                        latestVer = "&cRequest limit exceeded."
+                    ELSE
+                        latestVer = "Unknwon or Deleted Repository";
+                    ENDIF
+                ENDTRY
+
+                IF packjson.get("active").getAsBoolean();
+                    active = "&aEnable";
+                ELSE
+                    active = "&cDisable"
+                ENDIF
+
+                IF pack == "trgithub"
+                    builder = builder.insert(0, "\n" + in + "&7latest version &8: &6" + latestVer);
+                    builder = builder.insert(0, "\n" + in + "&7version &8: &e" + packjson.get("version").getAsString());
+                    builder = builder.insert(0, "\n&f- &b" + packjson.get("name").getAsString() + " &f| " + active);
+                ELSE
+                    builder = builder.append("\n&f- &b" + packjson.get("name").getAsString() + " &f| " + active);
+                    builder = builder.append("\n" + in + "&7version &8: &e" + packjson.get("version").getAsString());
+                    builder = builder.append("\n" + in + "&7latest version &8: &6" + latestVer);
+                ENDIF
+            ENDFOR
+        ELSE
+            packjson = packageManager.getAsJsonObject(args[1].toLowerCase())
+
+            IF packjson !=null
+                
+                TRY
+                    verStream = InputStreamReader(URL("https://api.github.com/repos/" + packjson.get("url").getAsString().replaceAll("https://github.com/", "") + "/releases/latest").openStream());
+                    latestVer = parser.parse(verStream).getAsJsonObject().get("tag_name").getAsString();
+                CATCH e
+                    IF e.getMessage() != null && e.getMessage().contains("Server returned HTTP response code: 403")
+                        latestVer = "&cRequest limit exceeded."
+                    ELSE
+                        latestVer = "Unknwon or Deleted Repository";
+                    ENDIF
+                ENDTRY
+
+                TRY
+                    zip = ZipFile(File("."+packjson.get("path").getAsString()));
+                    parentDir = zip.entries().nextElement().getName();
+
+                    infoEntry = zip.getEntry(parentDir+"package-info.json");
+                    infoJson = parser.parse(InputStreamReader(zip.getInputStream(infoEntry)));
+                    triggersJson = infoJson.getAsJsonObject("triggers");
+                    infoJson = infoJson.getAsJsonObject("info");
+
+                    IF packjson.get("active").getAsBoolean();
+                        active = "&aEnable";
+                    ELSE
+                        active = "&cDisable";
+                    ENDIF
+
+                    builder = builder.append("\n&7Package Name &f: &b" + packjson.get("name").getAsString() + " &f| " + active);
+                    builder = builder.append("\n&f\n&7Author &f- &d"+infoJson.get("author").getAsString());
+                    builder = builder.append("\n&f\n&7Description &f- &f");
+                    builder = builder.append("\n&8"+infoJson.get("description").getAsString())
+                    builder = builder.append("\n&f\n&7version &f: &e" + packjson.get("version").getAsString());
+                    builder = builder.append("\n&7latest version &f: &6" + latestVer);
+                    builder = builder.append("\n&f\n&7Tested trg Version &f: &b" + infoJson.get("trg_version").getAsString());
+                    builder = builder.append("\n&7Tested minecraft Version &f: &b" + infoJson.get("mc_version").getAsString());
+                    builder = builder.append("\n&7Recommended Java Version &f: &b" + infoJson.get("jdk").getAsString());
+                    builder = builder.append("\n&f\n&7Github url &f: &a&n" + packjson.get("url").getAsString());
+                    builder = builder.append("\n&f\n&7Triggers &f-")
+                    FOR trigger = triggersJson.keySet()
+                        builder = builder.append("\n"+in+"&7" + trigger + " &f-")
+                        builder = builder.append("\n"+in+"&2" + triggersJson.getAsJsonArray(trigger))
+                    ENDFOR
+
+                    zip.close();
+                CATCH e
+                    IF e.getClass() IS Class.forName("java.util.zip.ZipException");
+                        #MESSAGE "&c.trgpack File is empty!";
+                        #MESSAGE "&cIs there any damage to the file?";
+                    ENDIF
+                    e.printStackTrace();
+
+                    TRY
+                        zip.close();
+                    CATCH e
+                    ENDTRY
+                    #STOP
+                ENDTRY
+            ELSE
+                #MESSAGE "&c'"+args[1]+"' not found";
+            ENDIF
+        ENDIF
+        builder.insert(0, "&b---------- &fTRGithub &b----------");
+        #MESSAGE builder.toString();
     ENDIF
 ENDIF
 
@@ -211,6 +281,11 @@ IF args.length == 2 || args.length == 3
                         #MESSAGE "&cIs there any damage to the file?";
                     ENDIF
                     e.printStackTrace()
+                FINALLY
+                    TRY
+                        zip.close();
+                    CATCH e
+                    ENDTRY
                 ENDTRY
             ENDIF
 
@@ -504,6 +579,11 @@ IF args.length > 0 && args.length < 4
                             #MESSAGE "&c.trgpack File is empty!"
                             #MESSAGE "&cIs there any damage to the file?";
                         ENDIF
+                    FINALLY
+                        TRY
+                            zip.close();
+                        CATCH e
+                        ENDTRY
                     ENDTRY
 
                     IF beforeFile.delete()
