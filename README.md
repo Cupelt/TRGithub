@@ -1,6 +1,9 @@
 # TRGithub
 Package management tool for the Minecraft plugin TriggerReactor. <a href="https://github.com/Cupelt/TRGithub/blob/main/README_kr.md">( Korean )</a></br></br>
 
+## 🚨Caution🚨
+This is a prototype version and may be somewhat unstable
+
 ## How to use
 This document explains how to use the package feature.
 
