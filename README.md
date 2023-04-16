@@ -40,7 +40,7 @@ Note: The default package activation state is disabled.</br>
 
 > `/github delete <packageName>`</br>
 → Deletes the specified package permanently.</br></br>
-Note: All files belonging to the package will also be deleted.</br>
+Note: All files with the file name that belongs to the package will be deleted.</br>
 </br>
 </br>
 
