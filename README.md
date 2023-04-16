@@ -64,7 +64,7 @@ Note: All files belonging to the package will also be deleted.</br>
       "description": "Package Description",
       "jdk" : "Recommended Java Version",
       "mc_version" : "Tested Minecraft Version",
-      "trg_version" : "Tested Trigger Version"
+      "trg_version" : "Tested TriggerReactor Version"
     },
     "triggers": {
       "CommandTrigger": [
