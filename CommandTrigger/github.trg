@@ -98,7 +98,7 @@ IF args.length == 0
     builder = builder.append("&b---------- &fTRGithub &b----------")
     builder = builder.append("\n&7./github active &8<packageName> &f| &achange active package");
     builder = builder.append("\n&7./github active &8<packageName> <overwrite | skip> &f| &aSet whether to overwrite.");
-    builder = builder.append("\n&7./github package <packageName | *> &f| &ashow downloaded pakages");
+    builder = builder.append("\n&7./github package &8<packageName | *> &f| &ashow downloaded pakages");
     builder = builder.append("\n&7./github insatall &8<github repository url> &f| \n&aInstall the \"latest package\" from the github repository.");
     builder = builder.append("\n&7./github insatall &8<github repository url> <version> &f| \n&aInstall the \"selected version\" from the github repository.");
     builder = builder.append("\n&7./github insatall &8<packageName> &f| \n&aUpdate the \"latest package\" in github repository.");
