@@ -15,7 +15,8 @@ The following commands are available:
 </br>
 
 > `/github active <packageName>`</br>
-→ Activates or deactivates the specified package.</br>
+→ Activates or deactivates the specified package.</br></br>
+Note: When disabled, all files with the registered file names in the package will be deleted.
 </br>
 
 > `/github active <packageName> <overwrite|skip>`</br>
