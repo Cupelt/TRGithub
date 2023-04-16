@@ -4,7 +4,7 @@
     "author" : "Cupelt",
     "description": "Download manager for Minecraft Trigger Reactor plugin",
     "jdk" : "java version 1.8.0_202+",
-    "mc_version" : "1.12.2+",
+    "mc_version" : "~1.19.4-R0.1-SNAPSHOT+",
     "trg_version" : "3.3.5-Release"
   },
   "triggers": {
