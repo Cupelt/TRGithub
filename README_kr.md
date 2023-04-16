@@ -1,8 +1,8 @@
 # TRGithub
 마인크래프트 플러그인 TriggerReactor의 패키지 관리 툴
 </br>
-## 🚨Caution🚨
-This is a prototype version and may be somewhat unstable
+## 🚨주의🚨
+이것은 프로토타입 버전이며 다소 불안정할 수 있습니다.
 </br></br>
 # how to use?
 패키지 사용법에 대해서 서술합니다.
