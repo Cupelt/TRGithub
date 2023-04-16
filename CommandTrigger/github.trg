@@ -272,11 +272,6 @@ IF args.length == 2 || args.length == 3
                         #MESSAGE "&cDeleted &4'"+ beforePath +"'"
                         packageManager.remove(args[1].toLowerCase())
                         #MESSAGE "&eReloading TriggerReactor...";
-                        SYNC
-                            FOR manager = Manager.getManagers()
-                                manager.reload();
-                            ENDFOR
-                        ENDSYNC
                         #MESSAGE "&aReload Complete TriggerReactor!";
                     ELSE
                         #MESSAGE "&4Failed to delete '.trgpack' file, Please restart the server and try again"
@@ -299,6 +294,12 @@ IF args.length == 2 || args.length == 3
 
             #MESSAGE "&cDelete Complete &4'"+packageJson.get("name").getAsString()+"'"
             packageManager.remove(args[1].toLowerCase())
+
+            SYNC
+                FOR manager = Manager.getManagers()
+                    manager.reload();
+                ENDFOR
+            ENDSYNC
         ELSE
             #MESSAGE "&c'"+args[1]+"' not found";
         ENDIF
