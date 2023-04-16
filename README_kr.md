@@ -16,7 +16,7 @@
 `/github active <packageName> <overwrite | skip>`</br>
 → 중복된 파일을 어떻게 처리할지 미리 설정합니다.</br></br>
 ※ `/github active <packageName>` 를 사용해도, 중복된 파일이 있다면, 선택지가 표시됩니다.</br>
-※ 패키지에 등록된 파일을 가지고 있는 파일은 모두 없어집니다.
+※ 패키지에 등록된 파일명의 파일은 모두 없어집니다.
 </br>
 
 > `/github package <packageName | *>`</br>
