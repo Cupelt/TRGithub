@@ -222,6 +222,7 @@ IF args.length == 2
                 ENDTRY
             ELSE
                 #MESSAGE "&c'"+args[1]+"' not found";
+                #STOP
             ENDIF
         ENDIF
         builder.insert(0, "&b---------- &fTRGithub &b----------");
