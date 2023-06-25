@@ -4,6 +4,10 @@ Package management tool for the Minecraft plugin TriggerReactor. <a href="https:
 ## 🚨Caution🚨
 This is a prototype version and may be somewhat unstable
 </br></br>
+## ⚠️known issues⚠️
+- You must add `--add-opens java.base/java.util.zip=ALL-UNNAME` to the argument portion of the bucket before it works.</br>
+  This is a temporary issue and will be unnecessary for the next update.
+</br></br>
 ## How to use
 This document explains how to use the package feature.
 
